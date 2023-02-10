@@ -1,21 +1,52 @@
-//
-//  ContentView.swift
-//  SimpleList
-//
-//  Created by 渡邊魁優 on 2023/02/10.
-//
 
 import SwiftUI
 
 struct ContentView: View {
+    let userDefaults = UserDefaults.standard
+    @State var itemList = ["k"]
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationStack {
+            List {
+                ForEach(itemList, id: \.self) { item in
+                    Text(item)
+                }
+                .onDelete(perform: delete)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing, content: {
+                    Button(action: {
+                        add()
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                })
+                ToolbarItem(placement: .navigationBarLeading, content: {
+                    Button(action: {
+                        print(itemList)
+                    }) {
+                        Image(systemName: "magnifyingglass")
+                    }
+                })
+            }
         }
-        .padding()
+        .onAppear() {
+            let getItems: [String] = userDefaults.array(forKey: "itemsKey") as! [String]
+            itemList = getItems
+        }
+    }
+    func delete(offset: IndexSet) {
+        itemList.remove(atOffsets: offset)
+        userDefaults.set(itemList, forKey: "itemsKey")
+        update()
+    }
+    func add() {
+        itemList.append("NewItem")
+        userDefaults.set(itemList, forKey: "itemsKey")
+        update()
+    }
+    func update() {
+        let getItems: [String] = userDefaults.array(forKey: "itemsKey") as! [String]
+        itemList = getItems
     }
 }
 
